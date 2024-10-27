@@ -7,8 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.115.3"
+fastapi = {extras = ["all"], version = "^0.115.3"}
 uvicorn = "^0.32.0"
+psycopg2 = "^2.9.10"
+sqlmodel = "^0.0.22"
 
 
 [tool.poetry.group.dev.dependencies]
