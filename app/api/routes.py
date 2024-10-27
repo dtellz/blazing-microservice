@@ -1,6 +1,6 @@
 """API routes for the events."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
@@ -12,22 +12,31 @@ from app.schemas.event import EventList, EventSummary, SearchResponse
 router = APIRouter()
 
 
-@router.get("/healthcheck")
+@router.get("/healthcheck", include_in_schema=False)
 async def healthcheck():
     """Check if the API is healthy."""
     return {"status": "OK"}
 
 
-@router.get("/search", response_model=SearchResponse)
+@router.get(
+    "/search",
+    response_model=SearchResponse,
+    openapi_extra={
+        "description": "",
+        "summary": "Lists the available events on a time range",
+    },  # Avoid docstring in FastAPI docs
+)
 def get_events(
     session: SessionDep,
     starts_at: datetime = Query(
         ...,
-        description="Start date and time in ISO format",
+        description="Return only events that starts after this date",
+        example="2017-07-21T17:32:28Z",
     ),
     ends_at: datetime = Query(
         ...,
-        description="End date and time in ISO format",
+        description="Return only events that finishes before this date",
+        example="2021-07-21T17:32:28Z",
     ),
 ):
     """Search for events within a given date range.
@@ -43,6 +52,12 @@ def get_events(
     Raises:
         HTTPException: If starts_at is not before ends_at
     """
+    # Convert naive datetimes to UTC if they don't have tzinfo
+    if starts_at.tzinfo is None:
+        starts_at = starts_at.replace(tzinfo=timezone.utc)
+    if ends_at.tzinfo is None:
+        ends_at = ends_at.replace(tzinfo=timezone.utc)
+
     if starts_at >= ends_at:
         raise HTTPException(
             status_code=400,
