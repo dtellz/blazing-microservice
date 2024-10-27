@@ -41,8 +41,15 @@ class EventList(BaseModel):
     events: list[EventSummary]
 
 
+class ErrorResponse(BaseModel):
+    """Error response schema."""
+
+    code: str
+    message: str
+
+
 class SearchResponse(BaseModel):
     """Search response schema."""
 
     data: EventList | None = None
-    error: str | None = None
+    error: ErrorResponse | None = None
