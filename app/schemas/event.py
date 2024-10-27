@@ -34,3 +34,8 @@ class EventSummary(BaseModel):
 
 class EventList(BaseModel):
     events: List[EventSummary]
+
+
+class EventListResponse(BaseModel):
+    data: EventList
+    error: Optional[str] = None

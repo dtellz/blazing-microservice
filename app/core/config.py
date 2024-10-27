@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_DB: str
     POSTGRES_HOST: str
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+    EXTERNAL_API_URL: str
+    CELERY_FETCH_EVENTS_SCHEDULE: float
 
     class Config:
         env_file = ".env"

@@ -13,6 +13,9 @@ class Event(SQLModel, table=True):
         primary_key=True,
         nullable=False,
     )
+    provider_unique_id: str = Field(..., index=True)
+    provider_base_event_id: str = Field(..., index=True)
+    provider_event_id: str = Field(..., index=True)
     title: str = Field(..., nullable=False)
     start_date: date = Field(..., nullable=False)
     start_time: Optional[time] = Field(default=None)
