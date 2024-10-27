@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery_app.task(bind=True, max_retries=5)
-def fetch_events_task(self):
+def fetch_events_task(self) -> None:
     """Fetch events from the external API."""
 
     db = next(get_db())
@@ -37,7 +37,7 @@ def fetch_events_task(self):
         db.close()
 
 
-def parse_xml(xml_content):
+def parse_xml(xml_content: bytes) -> list[dict]:
     """Parse the XML content from the external API."""
 
     root = etree.fromstring(xml_content)
@@ -87,7 +87,7 @@ def parse_xml(xml_content):
     return events
 
 
-def upsert_events(events, db):
+def upsert_events(events: list[dict], db) -> None:
     """Upsert events to the database."""
 
     existing_events = db.exec(select(Event)).all()

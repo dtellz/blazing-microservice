@@ -10,6 +10,8 @@ celery_app = Celery(
     backend=settings.CELERY_RESULT_BACKEND,
 )
 
+# Worker configurations:
+
 celery_app.conf.timezone = "UTC"
 
 celery_app.conf.beat_schedule = {
@@ -19,13 +21,11 @@ celery_app.conf.beat_schedule = {
     },
 }
 
-celery_app.autodiscover_tasks(["app.tasks.fetch_events"])
-
-# Configure the Celery Beat scheduler
 celery_app.conf.beat_schedule_filename = (
     "/app/celerybeat-schedule/celerybeat-schedule"  # noqa: E501
 )
 celery_app.conf.beat_scheduler = "celery.beat.PersistentScheduler"
 
-# Set broker_connection_retry_on_startup to True
 celery_app.conf.broker_connection_retry_on_startup = True
+
+celery_app.autodiscover_tasks(["app.tasks.fetch_events"])

@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get("/healthcheck", include_in_schema=False)
-async def healthcheck():
+async def healthcheck() -> dict[str, str]:
     """Check if the API is healthy."""
     return {"status": "OK"}
 
@@ -38,7 +38,7 @@ def get_events(
         description="Return only events that finishes before this date",
         example="2021-07-21T17:32:28Z",
     ),
-):
+) -> SearchResponse:
     """Search for events within a given date range.
 
     Args:
