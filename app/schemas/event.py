@@ -1,3 +1,5 @@
+"""Schemas for the events."""
+
 from datetime import date, time
 from uuid import UUID
 
@@ -5,6 +7,8 @@ from pydantic import BaseModel, Field
 
 
 class EventSummary(BaseModel):
+    """Event summary schema."""
+
     id: UUID = Field(..., description="Identifier for the plan (UUID)")
     title: str = Field(..., description="Title of the plan")
     start_date: date = Field(
@@ -32,9 +36,13 @@ class EventSummary(BaseModel):
 
 
 class EventList(BaseModel):
+    """List of event summaries."""
+
     events: list[EventSummary]
 
 
 class SearchResponse(BaseModel):
+    """Search response schema."""
+
     data: EventList | None = None
     error: str | None = None

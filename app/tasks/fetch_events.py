@@ -1,3 +1,5 @@
+"""Fetch events from the external API."""
+
 import logging
 from datetime import datetime
 
@@ -16,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(bind=True, max_retries=5)
 def fetch_events_task(self):
+    """Fetch events from the external API."""
+
     db = next(get_db())
     try:
         response = requests.get(settings.EXTERNAL_API_URL, timeout=10)
@@ -34,6 +38,8 @@ def fetch_events_task(self):
 
 
 def parse_xml(xml_content):
+    """Parse the XML content from the external API."""
+
     root = etree.fromstring(xml_content)
     events = []
     for base_event_elem in root.xpath("//base_event"):
@@ -82,6 +88,8 @@ def parse_xml(xml_content):
 
 
 def upsert_events(events, db):
+    """Upsert events to the database."""
+
     existing_events = db.exec(select(Event)).all()
     existing_events_by_provider_unique_id = {
         e.provider_unique_id: e for e in existing_events

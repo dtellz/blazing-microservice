@@ -1,3 +1,5 @@
+"""Celery worker for the application."""
+
 from celery import Celery
 
 from app.core.config import settings

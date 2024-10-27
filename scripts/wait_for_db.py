@@ -1,3 +1,5 @@
+"""Utility script to wait for the database to be ready on startup."""
+
 import os
 import time
 

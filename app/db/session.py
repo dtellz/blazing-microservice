@@ -1,3 +1,5 @@
+"""Database session."""
+
 from sqlmodel import create_engine
 
 from app.core.config import settings

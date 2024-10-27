@@ -1,7 +1,11 @@
+"""Configuration for the application."""
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    """Settings for the application."""
+
     DATABASE_URL: str
     POSTGRES_PASSWORD: str
     POSTGRES_USER: str

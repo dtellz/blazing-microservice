@@ -1,3 +1,5 @@
+"""Models for the events."""
+
 from datetime import date, time
 from uuid import UUID, uuid4
 
@@ -5,6 +7,8 @@ from sqlmodel import Field, SQLModel
 
 
 class Event(SQLModel, table=True):
+    """Event model."""
+
     __tablename__ = "events"
 
     id: UUID = Field(

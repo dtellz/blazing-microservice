@@ -1,3 +1,5 @@
+"""Dependency injectors for the application."""
+
 from typing import Annotated
 
 from fastapi import Depends
