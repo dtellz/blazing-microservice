@@ -1,13 +1,11 @@
 """API routes for the events."""
 
-from datetime import datetime, timezone
+from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Query
-from sqlmodel import select
+from fastapi import APIRouter, Query
 
-from app.dependencies import SessionDep
-from app.models.event import Event
-from app.schemas.event import EventList, EventSummary, SearchResponse
+from app.dependencies import EventServiceDep, SessionDep
+from app.schemas.event import SearchResponse
 
 router = APIRouter()
 
@@ -28,6 +26,7 @@ async def healthcheck() -> dict[str, str]:
 )
 def get_events(
     session: SessionDep,
+    event_service: EventServiceDep,
     starts_at: datetime = Query(
         ...,
         description="Return only events that starts after this date",
@@ -42,37 +41,12 @@ def get_events(
     """Search for events within a given date range.
 
     Args:
-        session: Database session dependency
+        event_service: Event service dependency for handling event operations
         starts_at: Start date/time to search from (inclusive)
         ends_at: End date/time to search until (inclusive)
 
     Returns:
-        SearchResponse containing list of matching events
-
-    Raises:
-        HTTPException: If starts_at is not before ends_at
+        SearchResponse containing list of matching events or error details
     """
-    # Convert naive datetimes to UTC if they don't have tzinfo
-    if starts_at.tzinfo is None:
-        starts_at = starts_at.replace(tzinfo=timezone.utc)
-    if ends_at.tzinfo is None:
-        ends_at = ends_at.replace(tzinfo=timezone.utc)
 
-    if starts_at >= ends_at:
-        raise HTTPException(
-            status_code=400,
-            detail="starts_at must be before ends_at",
-        )
-
-    statement = select(Event).where(
-        Event.start_date >= starts_at.date(),
-        Event.end_date <= ends_at.date(),
-    )
-    events = session.exec(statement).all()
-
-    # Convert Event models to EventSummary schemas
-    event_summaries = [
-        EventSummary.model_validate(event.model_dump()) for event in events
-    ]
-
-    return SearchResponse(data=EventList(events=event_summaries))
+    return event_service.search_events(session, starts_at, ends_at)

@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlmodel import Session
 
 from app.db.session import engine
+from app.services.events_service import EventService
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -14,3 +15,4 @@ def get_db() -> Generator[Session, None, None]:
 
 
 SessionDep = Annotated[Session, Depends(get_db)]
+EventServiceDep = Annotated[EventService, Depends(EventService)]
