@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.event import Event
 from app.schemas.event import EventList, EventSummary, SearchResponse
@@ -28,8 +29,8 @@ class EventService:
                 status_code=400, detail="starts_at must be before ends_at"
             )
 
-    def search_events(
-        self, session: Session, starts_at: datetime, ends_at: datetime
+    async def search_events(
+        self, session: AsyncSession, starts_at: datetime, ends_at: datetime
     ) -> SearchResponse:
         """Search for events within a given date range.
 
@@ -49,7 +50,8 @@ class EventService:
             Event.start_date >= starts_at.date(),
             Event.end_date <= ends_at.date(),
         )
-        events = session.exec(statement).all()
+        result = await session.exec(statement)
+        events = result.all()
 
         event_summaries = [
             EventSummary.model_validate(event.model_dump()) for event in events

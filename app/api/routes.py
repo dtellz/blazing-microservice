@@ -13,6 +13,7 @@ router = APIRouter()
 @router.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:
     """Check if the API is healthy."""
+    # For debugging purposes during development
     return {"status": "OK"}
 
 
@@ -24,7 +25,7 @@ async def healthcheck() -> dict[str, str]:
         "summary": "Lists the available events on a time range",
     },  # Avoid docstring in FastAPI docs
 )
-def get_events(
+async def get_events(
     session: SessionDep,
     event_service: EventServiceDep,
     starts_at: datetime = Query(
@@ -49,4 +50,4 @@ def get_events(
         SearchResponse containing list of matching events or error details
     """
 
-    return event_service.search_events(session, starts_at, ends_at)
+    return await event_service.search_events(session, starts_at, ends_at)
