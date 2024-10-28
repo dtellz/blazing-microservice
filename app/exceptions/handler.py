@@ -15,7 +15,8 @@ async def search_exception_handler(
     if isinstance(exception, RequestValidationError):
         error_msg = "Validation error"
         response = SearchResponse(
-            data=None, error=ErrorResponse(code="400", message=error_msg)
+            data=None,
+            error=ErrorResponse(code="400", message=error_msg),
         )
         status_code = 400
     else:

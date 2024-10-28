@@ -20,7 +20,8 @@ class EventSummary(BaseModel):
         example="22:38:19",
     )
     end_date: date | None = Field(
-        None, description="Date when the event ends in local time"
+        None,
+        description="Date when the event ends in local time",
     )
     end_time: time | None = Field(
         None,
@@ -28,10 +29,12 @@ class EventSummary(BaseModel):
         example="14:45:15",
     )
     min_price: float | None = Field(
-        None, description="Min price from all the available tickets"
+        None,
+        description="Min price from all the available tickets",
     )
     max_price: float | None = Field(
-        None, description="Max price from all the available tickets"
+        None,
+        description="Max price from all the available tickets",
     )
 
 
