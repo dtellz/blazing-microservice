@@ -16,7 +16,7 @@ class Event(SQLModel, table=True):
         primary_key=True,
         nullable=False,
     )
-    provider_unique_id: str = Field(..., index=True)
+    provider_unique_id: str = Field(..., index=True, unique=True)
     provider_base_event_id: str = Field(..., index=True)
     provider_event_id: str = Field(..., index=True)
     title: str = Field(..., nullable=False)
