@@ -1,3 +1,5 @@
+import asyncio
+from typing import Generator
 from unittest.mock import patch
 
 import pytest_asyncio
@@ -22,6 +24,13 @@ engine_test = create_async_engine(
 
 
 @pytest_asyncio.fixture(scope="session")
+def event_loop() -> Generator:
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest_asyncio.fixture(scope="session")
 async def prepare_database():
     """Create the test database tables."""
     async with engine_test.connect() as conn:
@@ -37,10 +46,10 @@ async def prepare_database():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_session(prepare_database):
+async def async_session():
     """Create a new database session for a test."""
     async with AsyncSession(
-        engine_test, expire_on_commit=False, autoflush=False, autocommit=False
+        engine_test, expire_on_commit=True, autoflush=True
     ) as session:
         try:
             yield session
@@ -62,7 +71,7 @@ def anyio_backend():
 
 
 @pytest_asyncio.fixture
-async def client(prepare_database, async_session, event_service):
+async def client(async_session, event_service):
     """Create a test client with a test database session."""
 
     async def override_get_db():

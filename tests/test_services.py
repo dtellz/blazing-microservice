@@ -3,6 +3,7 @@ from uuid import UUID
 
 import pytest
 from fastapi import HTTPException
+from sqlalchemy import text
 
 from app.models.event import Event
 from app.schemas.event import SearchResponse
@@ -64,9 +65,30 @@ async def test_search_events(async_session):
         max_price=20.0,
     )
 
-    async with async_session.begin():
-        async_session.add(test_event)
-        await async_session.commit()
+    await async_session.execute(
+        text("DELETE FROM events WHERE id = :id"), {"id": test_event.id}
+    )
+    await async_session.execute(
+        text(
+            "INSERT INTO events VALUES (:id, :provider_unique_id, :provider_base_event_id, "  # noqa: E501
+            ":provider_event_id, :title, :start_date, :start_time, :end_date, :end_time, "  # noqa: E501
+            ":min_price, :max_price)"
+        ),
+        {
+            "id": test_event.id,
+            "provider_unique_id": test_event.provider_unique_id,
+            "provider_base_event_id": test_event.provider_base_event_id,
+            "provider_event_id": test_event.provider_event_id,
+            "title": test_event.title,
+            "start_date": test_event.start_date,
+            "start_time": test_event.start_time,
+            "end_date": test_event.end_date,
+            "end_time": test_event.end_time,
+            "min_price": test_event.min_price,
+            "max_price": test_event.max_price,
+        },
+    )
+    await async_session.commit()
 
     # Search within date range containing the event
     starts_at = datetime(2023, 1, 1, tzinfo=timezone.utc)
