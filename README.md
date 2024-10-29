@@ -1,6 +1,6 @@
-# Events provider integration
+# Fever Providers API
 
-This project is a microservice that integrates with an external events provider and returns the events within a given time range.
+This project is a microservice that integrates with an external events provider and returns the events that were historically or currently online within a given time range.
 
 ## Table of contents
 
