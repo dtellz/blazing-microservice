@@ -44,8 +44,8 @@ async def test_validate_date_range():
     assert exc.value.detail == "starts_at must be before ends_at"
 
 
-@pytest.mark.asyncio
-async def test_search_events(prepare_database, async_session):
+@pytest.mark.asyncio(scope="function")
+async def test_search_events(async_session):
     """Test search_events method."""
     service = EventService()
 
@@ -82,8 +82,8 @@ async def test_search_events(prepare_database, async_session):
     assert response.data.events[0].max_price == 20.0
 
 
-@pytest.mark.asyncio
-async def test_search_events_no_results(prepare_database, async_session):
+@pytest.mark.asyncio(scope="function")
+async def test_search_events_no_results(async_session):
     """Test search_events method with no matching results."""
     service = EventService()
 
@@ -98,8 +98,8 @@ async def test_search_events_no_results(prepare_database, async_session):
     assert len(response.data.events) == 0
 
 
-@pytest.mark.asyncio
-async def test_search_events_invalid_dates(prepare_database, async_session):
+@pytest.mark.asyncio(scope="function")
+async def test_search_events_invalid_dates(async_session):
     """Test search_events method with invalid date range."""
     service = EventService()
 

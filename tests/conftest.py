@@ -1,7 +1,5 @@
-import asyncio
 from unittest.mock import patch
 
-import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -19,16 +17,8 @@ TEST_DATABASE_URL = (
 # Create an asynchronous engine for testing
 engine_test = create_async_engine(
     TEST_DATABASE_URL,
-    echo=False,
+    echo=True,
 )
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an instance of the default event loop for each test case."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -43,12 +33,10 @@ async def prepare_database():
     yield
 
     async with engine_test.connect() as conn:
-
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.commit()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def async_session(prepare_database):
     """Create a new database session for a test."""
     async with AsyncSession(

@@ -27,7 +27,7 @@ async def test_parse_xml():
     assert event["title"] == "Test Event"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="function")
 async def test_upsert_events(async_session: AsyncSession):
     sample_events = [
         {
