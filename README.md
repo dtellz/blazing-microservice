@@ -1,87 +1,131 @@
-# Fever code challenge
+# Fever Providers API
 
-Hello! Glad you are on this step of the process. We would like to see how you are doing while coding and this exercise
-tries to be a simplified example of something we do on our daily basis.
+This project is a microservice that integrates with an external events provider and returns the events that were historically or currently online within a given time range.
 
-At Fever we work to bring experiences to people. We have a marketplace of events from different providers that are
-curated and then consumed by multiple applications. We work hard to expand the range of experiences we offer to our customers.
-Consequently, we are continuosly looking for new providers with great events to integrate in our platforms. 
-In this challenge, you will have to set up a simple integration with one of those providers to offer new events to our users.
+## Table of contents
 
-Even if this is just a disposable test, imagine when coding that somebody will pick up this code an maintain it on
-the future. It will be evolved, adding new features, adapting existent ones, or even removing unnecessary functionalities.
-So this should be conceived as a long term project, not just one-off code.
+- [Project overview](#project-overview)
+- [Prerequisites](#prerequisites)
+- [Running the project](#running-the-project)
+- [API documentation](#api-documentation)
+- [API ad-hoc testing](#api-ad-hoc-testing)
+- [Measure API response time](#measure-api-response-time)
+- [Running the tests](#running-the-tests)
+- [Running a task](#running-a-task)
+- [Stopping the project](#stopping-the-project)
+- [Development work](#development-work)
+- [Future improvements](#future-improvements)
 
-## Evaluation
-We will value the solution as a whole, but some points that we must special attention are:
-- How the proposed solution matches the given problem.
-- Code style.
-- Consistency across the codebase.
-- Software architecture proposed to solve the problem.
-- Documentation about decisions you made.
+## Project overview
 
-## Tooling
-- Use Python 3 unless something different has been told.
-- You can use any library, framework or tool that you think are the best for the job.
-- To provide your code, use the master branch of this repository.
+The project is a FastAPI application that integrates with an external events provider and returns the events within a given time range.
 
-## Description
-We have an external provider that gives us some events from their company, and we want to integrate them on the Fever
-marketplace, in order to do that, we are developing this microservice.
+## Prerequisites
 
-##### External provider service
-The provider will have one endpoint:
+Ensure you have the following installed:
 
-https://provider.code-challenge.feverup.com/api/events
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Make](https://www.gnu.org/software/make/)
 
-Where they will give us their list of events on XML. Every time we fetch the events,
-the endpoint will give us the current events available on their side. Here we provide some examples of three different
-calls to that endpoint on three different consecutive moments.
+## Running the project
 
-Response 1
-https://gist.githubusercontent.com/sergio-nespral/82879974d30ddbdc47989c34c8b2b5ed/raw/44785ca73a62694583eb3efa0757db3c1e5292b1/response_1.xml
+You can start the project with the following command:
 
-Response 2
-https://gist.githubusercontent.com/sergio-nespral/82879974d30ddbdc47989c34c8b2b5ed/raw/44785ca73a62694583eb3efa0757db3c1e5292b1/response_2.xml
+```bash
+make run
+```
 
-Response 3
-https://gist.githubusercontent.com/sergio-nespral/82879974d30ddbdc47989c34c8b2b5ed/raw/44785ca73a62694583eb3efa0757db3c1e5292b1/response_3.xml
+## API documentation
 
-As you can see, the events that aren't available anymore aren't shown on their API anymore.
+The API documentation is available at `http://localhost:8000/docs`.
 
-##### What we need to develop
-Our mission is to develop and expose just one endpoint, and should respect the following Open API spec, with
-the formatted and normalized data from the external provider:
-https://app.swaggerhub.com/apis-docs/luis-pintado-feverup/backend-test/1.0.0
+## API ad-hoc testing
 
-This endpoint should accept a "starts_at" and "ends_at" param, and return only the events within this time range.
-- It should only return the events that were available at some point in the provider's endpoint(the sell mode was online, the rest should be ignored)
-- We should be able to request this endpoint and get events from the past (events that came in previous API calls to the provider service since we have the app running) and the future.
-- The endpoint should be fast in hundred of ms magnitude order, regardless of the state of other external services. For instance, if the external provider service is down, our search endpoint should still work as usual.
+You can test the API using the `curl` command. For example, to get the events within a given time range, you can use the following command:
 
-Example: If we deploy our application on 2021-02-01, and we request the events from 2021-02-01 to 2022-07-03, we should
-see in our endpoint the events 291, 322 and 1591 with their latest known values. 
+```bash
+curl -X GET "http://localhost:8000/search?starts_at=2021-01-01T00:00:00Z&ends_at=2021-12-31T23:59:59Z"
+```
 
-## Requirements
-- The service should be as resource and time efficient as possible.
-- The Open API specification should be respected.
-- Use PEP8 guidelines for the formatting
-- Add a README file that includes any considerations or important decision you made.
-- If able, add a Makefile with a target named `run` that will do everything that is needed to run the application.
+## Measure API response time
 
-## The extra mile
-With the mentioned above we can have a pretty solid application. Still we would like to know your opinion, either 
-directly coded (if you want to invest the time) or explained on a README file about how to scale this application
-to focus on performance. The examples are small for the sake of the test, but imagine that those files contains
-thousands of events with hundreds of zones each. Also consider, that this endpoint developed by us, will have peaks
-of traffic between 5k/10k request per second.
+To ad-hoc measure the API response time, you can use the following command:
 
-## Feedback
-If you have any questions about the test you can contact us, we will try to reply as soon as possible.
+```bash
+curl -X GET "http://localhost:8000/search?starts_at=2021-01-01T00:00:00&ends_at=2021-12-31T23:59:59Z" \
+-H "accept: application/json" \
+-w "\nTotal time: %{time_total}s\n"
+```
 
-In Fever, we really appreciate your interest and time. We are constantly looking for ways to improve our selection processes,
-our code challenges and how we evaluate them. Hence, we would like to ask you to fill the following (very short) form:
+During development, the most performant response time seen was `0.004573s`:
 
-https://forms.gle/6NdDApby6p3hHsWp8
+```bash
+➜  ~ curl -X GET "http://localhost:8000/search?starts_at=2021-01-01T00:00:00&ends_at=2021-12-31T23:59:55Z" \
+-H "accept: application/json" \
+-w "\nTotal time: %{time_total}s\n"
+{"data":{"events":[{"id":"80649f07-8ac4-4000-93a6-93521a7b6e2c","title":"Pantomima Full","start_date":"2021-02-10","start_time":"20:00:00","end_date":"2021-02-10","end_time":"21:30:00","min_price":55.0,"max_price":55.0},{"id":"49a57bed-efbb-4a8f-bf28-079c22fc4ddf","title":"Camela en concierto","start_date":"2021-06-30","start_time":"21:00:00","end_date":"2021-06-30","end_time":"22:00:00","min_price":15.0,"max_price":30.0},{"id":"75243926-3c8a-49fd-a752-37840435344b","title":"Los Morancos","start_date":"2021-07-31","start_time":"20:00:00","end_date":"2021-07-31","end_time":"21:20:00","min_price":65.0,"max_price":75.0}]},"error":null}
+Total time: 0.004573s
+```
 
-Thank you very much for participating!
+## Running the tests
+
+To run the tests, you can use the following command:
+
+```bash
+make test
+```
+
+## Running a task
+
+To run an external provider event fetching task, you can use the following command:
+
+```bash
+make run-task
+```
+
+## Stopping the project
+
+To stop the project without removing containers, you can use the following command:
+
+```bash
+make stop
+```
+
+To stop the project and remove containers, you can use the following command:
+
+```bash
+make down
+```
+
+To restart the project, you can use the following command:
+
+```bash
+make restart
+```
+
+## Development work
+
+Install pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+Install project dependencies:
+
+```bash
+poetry install
+```
+
+## Future improvements
+
+- CI/CD pipeline: Implement a CI/CD pipeline to automatically build, test, and deploy the project.
+- Environments: Implement a multi-environment setup (dev, testing, staging, production) with different configuration for each environment.
+- Implement Caching: Utilize Redis to cache frequent search queries, enhancing performance.
+- Data Retention Policies: Introduce mechanisms to archive or delete outdated events to manage database size.
+- Advanced logging: Add structured and centralized logging to the project.
+- Advanced Monitoring: Integrate tools like Prometheus and Grafana for real-time monitoring and alerting.
+- Enhanced Security: Implement authentication and authorization for API endpoints.
+- Scalability Enhancements: Optimize Celery task management and consider deploying services using Kubernetes for better scalability.
+

@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "events-provider"
+version = "0.1.0"
+description = "Serve events from a new event provider"
+authors = ["Diego <dtellez95@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.115.3"}
+uvicorn = "^0.32.0"
+celery = "^5.4.0"
+redis = "^5.2.0"
+lxml = "^5.3.0"
+asyncpg = "^0.30.0"
+sqlalchemy = "^2.0.36"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+flake8 = "^7.1.1"
+isort = "^5.13.2"
+pre-commit = "^4.0.1"
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^5.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

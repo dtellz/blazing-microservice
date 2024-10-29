@@ -1,0 +1,6 @@
+.python-version
+.venv
+**/__pycache__/
+.coverage
+.pytest_cache
+.DS_Store
