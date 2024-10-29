@@ -8,50 +8,41 @@ import httpx
 from lxml import etree
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.config import settings
-from app.db.session import async_session_maker
 from app.models.event import Event
 from app.worker import celery_app
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # isort: skip  # fmt: skip # noqa: E501
+
 
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(bind=True, max_retries=5)
-def fetch_events_task(self) -> None:
-    """Fetch events from the external API."""
-    try:
-        # Create a new event loop for this task
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(_fetch_events())
-    except Exception as exc:
-        logger.error(f"Error in fetch_events_task: {exc}")
-        # Exponential backoff retry
-        self.retry(exc=exc, countdown=2**self.request.retries)
-    finally:
-        loop.close()
-
-
-async def _fetch_events() -> None:
+async def _fetch_events(session_maker: async_sessionmaker) -> None:
     """Asynchronous helper function to fetch events."""
     try:
         logger.info("Starting to fetch events from external API.")
-        async with async_session_maker() as db:
+        async with session_maker() as db:
+            # Fetch XML data
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     settings.EXTERNAL_API_URL,
                     timeout=10,
-                )  # noqa: B110
+                )
                 response.raise_for_status()
                 xml_content = response.content
                 logger.info("Successfully fetched events from external API.")
 
+            # Parse events
             events = parse_xml(xml_content)
             logger.info(f"Parsed {len(events)} events from XML.")
-            await upsert_events(events, db)
-            logger.info("Successfully upserted events to the database.")
+
+            batch_size = 50
+            for i in range(0, len(events), batch_size):
+                batch = events[i : i + batch_size]  # noqa: E203
+                await upsert_events(batch, db)
+                logger.info(f"Upserted batch of {len(batch)} events.")
 
     except httpx.RequestError as exc:
         logger.error(f"HTTP request error while fetching events: {exc}")
@@ -148,3 +139,24 @@ async def upsert_events(events: list[dict], db: AsyncSession) -> None:
         await db.rollback()
         logger.error(f"Error saving events to the database: {e}")
         raise
+
+
+@celery_app.task(bind=True, max_retries=5)
+def fetch_events_task(self) -> None:
+    """Fetch events from the external API."""
+    try:
+        # Create a new event loop for this task
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        # Create a new async engine and session maker bound to this loop
+        engine = create_async_engine(settings.DATABASE_URL, echo=False)
+        session_maker = async_sessionmaker(engine, expire_on_commit=False)
+
+        loop.run_until_complete(_fetch_events(session_maker))
+    except Exception as exc:
+        logger.error(f"Error in fetch_events_task: {exc}")
+        # Exponential backoff retry
+        self.retry(exc=exc, countdown=2**self.request.retries)
+    finally:
+        loop.close()
