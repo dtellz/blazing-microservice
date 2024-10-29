@@ -14,6 +14,21 @@ services:
     ports:
       - "5432:5432"
 
+  db_test:
+    image: postgres:17
+    restart: always
+    volumes:
+      - app-db-data-test:/var/lib/postgresql/data/pgdata_test
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata_test
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_TEST?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER_TEST?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB_TEST?Variable not set}
+    ports:
+      - "5433:5432"
+
   redis:
     image: redis:7.4
     restart: always
@@ -70,3 +85,4 @@ services:
 volumes:
   app-db-data:
   celery-beat-data:
+  app-db-data-test:

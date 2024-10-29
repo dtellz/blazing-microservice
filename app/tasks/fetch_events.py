@@ -23,7 +23,7 @@ async def _fetch_events(session_maker: async_sessionmaker) -> None:
     """Asynchronous helper function to fetch events."""
     try:
         logger.info("Starting to fetch events from external API.")
-        async with session_maker() as db:
+        async with session_maker() as session:
             # Fetch XML data
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -41,7 +41,7 @@ async def _fetch_events(session_maker: async_sessionmaker) -> None:
             batch_size = 50
             for i in range(0, len(events), batch_size):
                 batch = events[i : i + batch_size]  # noqa: E203
-                await upsert_events(batch, db)
+                await upsert_events(batch, session)
                 logger.info(f"Upserted batch of {len(batch)} events.")
 
     except httpx.RequestError as exc:
@@ -115,7 +115,7 @@ def parse_xml(xml_content: bytes) -> list[dict]:
     return events
 
 
-async def upsert_events(events: list[dict], db: AsyncSession) -> None:
+async def upsert_events(events: list[dict], session: AsyncSession) -> None:
     """Upsert events to the database using ON CONFLICT."""
     if not events:
         logger.info("No events to upsert.")
@@ -133,10 +133,10 @@ async def upsert_events(events: list[dict], db: AsyncSession) -> None:
             set_=update_dict,
         )
 
-        await db.execute(stmt)
-        await db.commit()
+        await session.execute(stmt)
+        await session.commit()
     except SQLAlchemyError as e:
-        await db.rollback()
+        await session.rollback()
         logger.error(f"Error saving events to the database: {e}")
         raise
 

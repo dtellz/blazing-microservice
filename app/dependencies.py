@@ -3,14 +3,14 @@
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import engine
+from app.db.session import async_session_maker
 from app.services.events_service import EventService
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession(engine) as session:
+    async with async_session_maker() as session:
         yield session
 
 

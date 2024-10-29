@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event
 from app.schemas.event import EventList, EventSummary, SearchResponse
@@ -46,15 +46,16 @@ class EventService:
 
         self._validate_date_range(starts_at, ends_at)
 
-        statement = select(Event).where(
-            Event.start_date >= starts_at.date(),
-            Event.end_date <= ends_at.date(),
-        )
-        result = await session.exec(statement)
-        events = result.all()
+        async with session.begin():
+            statement = select(Event).where(
+                Event.start_date >= starts_at.date(),
+                Event.end_date <= ends_at.date(),
+            )
+            result = await session.execute(statement)
+            events = result.scalars().all()
 
-        event_summaries = [
-            EventSummary.model_validate(event.model_dump()) for event in events
-        ]
+            event_summaries = [
+                EventSummary.model_validate(event.__dict__) for event in events
+            ]
 
-        return SearchResponse(data=EventList(events=event_summaries))
+            return SearchResponse(data=EventList(events=event_summaries))
