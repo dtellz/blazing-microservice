@@ -1,6 +1,5 @@
 import asyncio
 from typing import Generator
-from unittest.mock import patch
 
 import pytest_asyncio
 from httpx import AsyncClient
@@ -83,20 +82,6 @@ async def client(async_session, event_service):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()
-
-
-@pytest_asyncio.fixture
-def mock_httpx_get():
-    """Mock httpx.AsyncClient.get method."""
-    with patch("httpx.AsyncClient.get") as mock_get:
-        yield mock_get
-
-
-@pytest_asyncio.fixture
-def mock_celery_task():
-    """Mock Celery task."""
-    with patch("app.tasks.fetch_events.fetch_events_task.delay") as mock_task:
-        yield mock_task
 
 
 @pytest_asyncio.fixture

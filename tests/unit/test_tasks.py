@@ -1,3 +1,5 @@
+"""Unit tests for the fetch events task."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -9,6 +11,7 @@ from app.tasks.fetch_events import _fetch_events, parse_xml, upsert_events
 
 @pytest.mark.asyncio
 async def test_parse_xml():
+    """Test parse_xml function."""
     xml_content = b"""
     <root>
         <base_event base_event_id="1" title="Test Event" sell_mode="online">
@@ -30,6 +33,7 @@ async def test_parse_xml():
 
 @pytest.mark.asyncio(scope="function")
 async def test_upsert_events(async_session: AsyncSession):
+    """Test upsert_events function."""
     sample_events = [
         {
             "provider_unique_id": "1_101",
@@ -59,6 +63,7 @@ async def test_upsert_events(async_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_fetch_events_success():
+    """Test fetch_events_task function."""
     # Mock response data
     mock_xml = b"""
     <root>
@@ -92,6 +97,7 @@ async def test_fetch_events_success():
 
 @pytest.mark.asyncio
 async def test_fetch_events_http_error():
+    """Test fetch_events_task function with HTTP error."""
     mock_session_maker = MagicMock(spec=async_sessionmaker)
     mock_session = AsyncMock(spec=AsyncSession)
     mock_session_maker.return_value.__aenter__.return_value = mock_session

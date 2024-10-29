@@ -1,3 +1,5 @@
+"""Unit tests for the events service."""
+
 from datetime import date, datetime, time, timezone
 from uuid import UUID
 
@@ -13,6 +15,7 @@ from app.services.events_service import EventService
 @pytest.mark.asyncio
 async def test_ensure_utc_timezone():
     """Test _ensure_utc_timezone method."""
+
     service = EventService()
 
     # Test naive datetime gets UTC timezone
@@ -29,6 +32,7 @@ async def test_ensure_utc_timezone():
 @pytest.mark.asyncio
 async def test_validate_date_range():
     """Test _validate_date_range method."""
+
     service = EventService()
 
     # Valid date range should not raise exception
@@ -48,6 +52,7 @@ async def test_validate_date_range():
 @pytest.mark.asyncio(scope="function")
 async def test_search_events(async_session):
     """Test search_events method."""
+
     service = EventService()
 
     # Create test event
@@ -107,6 +112,7 @@ async def test_search_events(async_session):
 @pytest.mark.asyncio(scope="function")
 async def test_search_events_no_results(async_session):
     """Test search_events method with no matching results."""
+
     service = EventService()
 
     # Search with date range that shouldn't contain any events
@@ -123,6 +129,7 @@ async def test_search_events_no_results(async_session):
 @pytest.mark.asyncio(scope="function")
 async def test_search_events_invalid_dates(async_session):
     """Test search_events method with invalid date range."""
+
     service = EventService()
 
     starts_at = datetime(2023, 12, 31, tzinfo=timezone.utc)

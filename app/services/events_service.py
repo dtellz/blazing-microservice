@@ -1,3 +1,5 @@
+"""Service layer for event-related operations."""
+
 from datetime import datetime, timezone
 
 from fastapi import HTTPException

@@ -1,3 +1,5 @@
+"""Unit tests for the API."""
+
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -9,6 +11,7 @@ from app.schemas.event import EventList, EventSummary, SearchResponse
 @pytest.mark.asyncio
 async def test_search_events_success(client, event_service):
     """Test successful event search."""
+
     # Mock data
     event_summary = EventSummary(
         id=UUID("a7a9d2f8-e3d3-4b2a-b8c9-f1d4e6a7b8c9"),
@@ -47,6 +50,7 @@ async def test_search_events_success(client, event_service):
 @pytest.mark.asyncio
 async def test_search_events_invalid_dates(client):
     """Test search with invalid date range."""
+
     # Test with ends_at before starts_at
     starts_at = "2023-12-31T00:00:00Z"
     ends_at = "2023-01-01T00:00:00Z"
@@ -66,6 +70,7 @@ async def test_search_events_invalid_dates(client):
 @pytest.mark.asyncio
 async def test_search_events_missing_parameters(client):
     """Test search with missing required parameters."""
+
     response = await client.get("/search")
 
     assert response.status_code == 400
@@ -79,6 +84,7 @@ async def test_search_events_missing_parameters(client):
 @pytest.mark.asyncio
 async def test_search_events_invalid_date_format(client):
     """Test search with invalid date format."""
+
     starts_at = "invalid-date"
     ends_at = "2023-12-31T23:59:59Z"
 
