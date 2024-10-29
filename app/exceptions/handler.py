@@ -4,7 +4,7 @@ from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.schemas.event import ErrorResponse, SearchResponse
+from app.schemas.event import ErrorResponse, SearchErrorResponse
 
 
 async def search_exception_handler(
@@ -14,13 +14,13 @@ async def search_exception_handler(
 
     if isinstance(exception, RequestValidationError):
         error_msg = "Validation error"
-        response = SearchResponse(
+        response = SearchErrorResponse(
             data=None,
             error=ErrorResponse(code="400", message=error_msg),
         )
         status_code = 400
     else:
-        response = SearchResponse(
+        response = SearchErrorResponse(
             data=None,
             error=ErrorResponse(
                 code=str(exception.status_code), message=exception.detail

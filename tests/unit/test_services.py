@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 
 from app.models.event import Event
-from app.schemas.event import SearchResponse
+from app.schemas.event import SearchErrorResponse, SearchSuccessResponse
 from app.services.events_service import EventService
 
 
@@ -50,7 +50,7 @@ async def test_validate_date_range():
 
 
 @pytest.mark.asyncio(scope="function")
-async def test_search_events(async_session):
+async def test_search_events(async_session, prepare_database):
     """Test search_events method."""
 
     service = EventService()
@@ -101,7 +101,7 @@ async def test_search_events(async_session):
 
     response = await service.search_events(async_session, starts_at, ends_at)
 
-    assert isinstance(response, SearchResponse)
+    assert isinstance(response, SearchSuccessResponse)
     assert response.data is not None
     assert len(response.data.events) == 1
     assert response.data.events[0].title == "Test Event"
@@ -110,7 +110,7 @@ async def test_search_events(async_session):
 
 
 @pytest.mark.asyncio(scope="function")
-async def test_search_events_no_results(async_session):
+async def test_search_events_no_results(async_session, prepare_database):
     """Test search_events method with no matching results."""
 
     service = EventService()
@@ -121,9 +121,10 @@ async def test_search_events_no_results(async_session):
 
     response = await service.search_events(async_session, starts_at, ends_at)
 
-    assert isinstance(response, SearchResponse)
-    assert response.data is not None
-    assert len(response.data.events) == 0
+    assert isinstance(response, SearchErrorResponse)
+    assert response.error is not None
+    assert response.error.code == "404"
+    assert response.error.message == "No events found"
 
 
 @pytest.mark.asyncio(scope="function")

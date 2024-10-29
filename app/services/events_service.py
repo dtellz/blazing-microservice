@@ -7,7 +7,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event
-from app.schemas.event import EventList, EventSummary, SearchResponse
+
+from app.schemas.event import ErrorResponse, EventList, EventSummary, SearchErrorResponse, SearchSuccessResponse  # isort: skip  # fmt: skip # noqa: E501
 
 
 class EventService:
@@ -33,7 +34,7 @@ class EventService:
 
     async def search_events(
         self, session: AsyncSession, starts_at: datetime, ends_at: datetime
-    ) -> SearchResponse:
+    ) -> SearchSuccessResponse | SearchErrorResponse:
         """Search for events within a given date range.
 
         Args:
@@ -41,7 +42,8 @@ class EventService:
             ends_at: End date/time to search until (inclusive)
 
         Returns:
-            SearchResponse containing list of matching events
+            SearchSuccessResponse containing list of matching events or
+            SearchErrorResponse containing error details
         """
         starts_at = self._ensure_utc_timezone(starts_at)
         ends_at = self._ensure_utc_timezone(ends_at)
@@ -59,5 +61,11 @@ class EventService:
             event_summaries = [
                 EventSummary.model_validate(event.__dict__) for event in events
             ]
-
-            return SearchResponse(data=EventList(events=event_summaries))
+            if event_summaries:
+                return SearchSuccessResponse(
+                    data=EventList(events=event_summaries)
+                )  # noqa: E501
+            else:
+                return SearchErrorResponse(
+                    error=ErrorResponse(code="404", message="No events found")
+                )

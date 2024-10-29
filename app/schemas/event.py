@@ -51,8 +51,15 @@ class ErrorResponse(BaseModel):
     message: str
 
 
-class SearchResponse(BaseModel):
+class SearchSuccessResponse(BaseModel):
     """Search response schema."""
 
     data: EventList | None = None
-    error: ErrorResponse | None = None
+    error: None = None
+
+
+class SearchErrorResponse(BaseModel):
+    """Search error response schema."""
+
+    data: None = None
+    error: ErrorResponse

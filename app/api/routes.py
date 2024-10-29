@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import APIRouter, Query
 
 from app.dependencies import EventServiceDep, SessionDep
-from app.schemas.event import SearchResponse
+from app.schemas.event import SearchErrorResponse, SearchSuccessResponse
 
 router = APIRouter()
 
@@ -19,7 +19,20 @@ async def healthcheck() -> dict[str, str]:
 
 @router.get(
     "/search",
-    response_model=SearchResponse,
+    responses={
+        200: {
+            "description": "List of plans",
+            "model": SearchSuccessResponse,
+        },
+        400: {
+            "description": "The request was not correctly formed (missing required parameters, wrong types...)",  # noqa: E501
+            "model": SearchErrorResponse,
+        },
+        500: {
+            "description": "Generic error",
+            "model": SearchErrorResponse,
+        },
+    },
     openapi_extra={
         "description": "",
         "summary": "Lists the available events on a time range",
@@ -38,7 +51,7 @@ async def get_events(
         description="Return only events that finishes before this date",
         example="2021-07-21T17:32:28Z",
     ),
-) -> SearchResponse:
+) -> SearchSuccessResponse | SearchErrorResponse:
     """Search for events within a given date range.
 
     Args:
@@ -47,7 +60,8 @@ async def get_events(
         ends_at: End date/time to search until (inclusive)
 
     Returns:
-        SearchResponse containing list of matching events or error details
+        SearchSuccessResponse containing list of matching events
+        SearchErrorResponse containing error details
     """
 
     return await event_service.search_events(session, starts_at, ends_at)

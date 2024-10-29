@@ -5,7 +5,7 @@ from uuid import UUID
 
 import pytest
 
-from app.schemas.event import EventList, EventSummary, SearchResponse
+from app.schemas.event import EventList, EventSummary, SearchSuccessResponse
 
 
 @pytest.mark.asyncio
@@ -23,7 +23,9 @@ async def test_search_events_success(client, event_service):
         min_price=10.0,
         max_price=20.0,
     )
-    mock_response = SearchResponse(data=EventList(events=[event_summary]))
+    mock_response = SearchSuccessResponse(
+        data=EventList(events=[event_summary])
+    )  # noqa: E501
 
     async def mock_search(*args):
         return mock_response
