@@ -2,6 +2,9 @@
 
 This project is a microservice that integrates with an external events provider and returns the events that were historically or currently online within a given time range.
 
+![Architecture diagram](architecture_diagram.png)
+
+
 ## Table of contents
 
 - [Project overview](#project-overview)
@@ -128,4 +131,3 @@ poetry install
 - Advanced Monitoring: Integrate tools like Prometheus and Grafana for real-time monitoring and alerting.
 - Enhanced Security: Implement authentication and authorization for API endpoints.
 - Scalability Enhancements: Optimize Celery task management and consider deploying services using Kubernetes for better scalability.
-
