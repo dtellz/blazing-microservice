@@ -11,7 +11,7 @@ from app.core.security import CORS_CONFIG
 from app.db.session import create_tables
 from app.exceptions.handler import search_exception_handler
 
-app = FastAPI(title="FeverUp Challenge - Events provider")
+app = FastAPI(title="blazing-microservice")
 
 # Important to add CORS middleware before routes and exception handlers
 app.add_middleware(CORSMiddleware, **CORS_CONFIG)

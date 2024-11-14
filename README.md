@@ -1,6 +1,6 @@
-# Fever Providers API
+# External Providers API
 
-This project is a microservice that integrates with an external events provider and returns the events that were historically or currently online within a given time range.
+This project is a microservice that integrates with an external events provider (XML) and returns the events that were historically or currently online within a given time range.
 
 ![Architecture diagram](architecture_diagram.png)
 
@@ -67,7 +67,6 @@ During development, the most performant response time seen was `0.004573s`:
 ➜  ~ curl -X GET "http://localhost:8000/search?starts_at=2021-01-01T00:00:00&ends_at=2021-12-31T23:59:55Z" \
 -H "accept: application/json" \
 -w "\nTotal time: %{time_total}s\n"
-{"data":{"events":[{"id":"80649f07-8ac4-4000-93a6-93521a7b6e2c","title":"Pantomima Full","start_date":"2021-02-10","start_time":"20:00:00","end_date":"2021-02-10","end_time":"21:30:00","min_price":55.0,"max_price":55.0},{"id":"49a57bed-efbb-4a8f-bf28-079c22fc4ddf","title":"Camela en concierto","start_date":"2021-06-30","start_time":"21:00:00","end_date":"2021-06-30","end_time":"22:00:00","min_price":15.0,"max_price":30.0},{"id":"75243926-3c8a-49fd-a752-37840435344b","title":"Los Morancos","start_date":"2021-07-31","start_time":"20:00:00","end_date":"2021-07-31","end_time":"21:20:00","min_price":65.0,"max_price":75.0}]},"error":null}
 Total time: 0.004573s
 ```
 
