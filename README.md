@@ -4,6 +4,18 @@ This project is a microservice that integrates with an external events provider 
 
 ![Architecture diagram](architecture_diagram.png)
 
+# Tech stack
+
+- [Python](https://www.python.org/) - Programming language
+- [FastAPI](https://fastapi.tiangolo.com/) - Web framework
+- [PostgreSQL](https://www.postgresql.org/) - Database
+- [Redis](https://redis.io/) - Message broker and result backend
+- [Celery](https://docs.celeryq.dev/) - Distributed task queue
+- [Docker](https://www.docker.com/) - Containerization
+- [Docker Compose](https://docs.docker.com/compose/) - Container orchestration
+- [asyncpg](https://magicstack.github.io/asyncpg/) - Asynchronous PostgreSQL client
+
+
 
 ## Table of contents
 
